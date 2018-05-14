@@ -9,6 +9,14 @@ class GamesController < ApplicationController
   def score
     @word = params[:word].downcase.split(//)
     @grid = params[:grid].split(//)
+    @round_score = params[:word].length * 3
+    if session[:round_score].nil?
+      session[:round_score] = @round_score
+    else
+      session[:round_score] += @round_score
+    end
+
+    @score = session[:round_score]
 
     # Check if word is in grid
     @in_grid = is_in_grid?(@word, @grid)
