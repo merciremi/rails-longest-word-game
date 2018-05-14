@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'open-uri'
 require 'json'
 
@@ -9,22 +11,49 @@ class GamesController < ApplicationController
   def score
     @word = params[:word].downcase.split(//)
     @grid = params[:grid].split(//)
-    @round_score = params[:word].length * 3
-    if session[:round_score].nil?
-      session[:round_score] = @round_score
-    else
-      session[:round_score] += @round_score
-    end
-
-    @score = session[:round_score]
 
     # Check if word is in grid
-    @in_grid = is_in_grid?(@word, @grid)
+    @in_grid = in_grid?
 
     # Check if word is English
-    @is_english = is_english?(params[:word])
+    @is_english = english?(params[:word])
 
     # Check if word is valid
+    @valid = valid
+
+    # Compute score
+    @round_score = params[:word].length * 3
+    @score = compute_score(@round_score)
+  end
+
+  private
+
+  def generate_grid
+    letters_array = ('a'..'z').to_a * 3
+    letters_array.sample(10)
+  end
+
+  def in_grid?
+    @word == @word & @grid
+  end
+
+  def english?(word)
+    url = "https://wagon-dictionary.herokuapp.com/#{word}"
+    user_attempt = JSON.parse(open(url).read)
+
+    user_attempt['found'] == true
+  end
+
+  def compute_score(score)
+    if session[:score].nil?
+      session[:score] = score
+    else
+      session[:score] += score
+    end
+    @grand_total = session[:score]
+  end
+
+  def valid
     if @in_grid && @is_english
       @message = "Well done, #{@word.join.upcase} fits the grid and is English."
     elsif @in_grid == true && @is_english == false
@@ -33,23 +62,4 @@ class GamesController < ApplicationController
       @message = "Sorry, #{@word.join.upcase} can't be build from #{@grid.join(', ')}."
     end
   end
-
-  private
-
-  def generate_grid
-    letters_array = ("a".."z").to_a * 3
-    letters_array.sample(10)
-  end
-
-  def is_in_grid?(word, grid)
-    @word == @word & @grid
-  end
-
-  def is_english?(word)
-    url = "https://wagon-dictionary.herokuapp.com/#{word}"
-    user_attempt = JSON.parse(open(url).read)
-
-    user_attempt['found'] == true ? true : false
-  end
-
 end
