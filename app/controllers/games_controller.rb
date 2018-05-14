@@ -25,6 +25,10 @@ class GamesController < ApplicationController
     @round_score = params[:word].length * 3
     @score = compute_score(@round_score)
   end
+  def reset
+    session.delete(:score)
+    redirect_to new_path
+  end
 
   private
 
@@ -62,4 +66,5 @@ class GamesController < ApplicationController
       @message = "Sorry, #{@word.join.upcase} can't be build from #{@grid.join(', ')}."
     end
   end
+
 end

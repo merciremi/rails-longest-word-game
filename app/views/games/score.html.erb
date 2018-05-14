@@ -1,5 +1,6 @@
 <h1>Result</h1>
 <div class="result"><%= @message %></div>
 <div class="score">Congrats, you made <%= @round_score%> points. Your grand score is <%= @score %>.</div>
-<%= link_to "Play again", new_path %>
+<p><%= link_to "Play again", new_path %></p>
+<p><%= link_to "Reset game", clear_path %></p>
 
